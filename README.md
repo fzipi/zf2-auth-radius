@@ -1,22 +1,21 @@
-orbini-auth-radius
-==================
+zf2-auth-radius
+===============
 
-Zend Framework 1 adapter to authenticate on RADIUS servers
+Zend Framework 2 adapter to authenticate on RADIUS servers
 
 Installation
 ------------
 
-To install simply copy the library/Orbini directory into the same directory as your Zend Framework and
-register it using Zend_Loader::registerNamespace
+To install use composer
 
 Usage
 -----
 
-Simply instantiate the Orbini_Auth_Adapter_Radius class specifying the desired servers and pass it to Zend_Auth:
+Simply instantiate the ZF_Auth_Adapter_Radius class specifying the desired servers and pass it to Zend_Auth:
 
 ```php
 //Create our adapter passing one server (up to 10 can be passed)
-$adapter = new Orbini_Auth_Adapter_Radius(
+$adapter = new ZF2_Auth_Adapter_Radius(
     array('servers' => array(
         array(
             'hostname' => 'localhost',
