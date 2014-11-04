@@ -1,31 +1,31 @@
 <?php
 /**
- * Orbini Auth Adapter Radius
+ * ZF2 Auth Adapter Radius
  *
  * @category   Auth
  * @package    Orbini
- * @copyright  Copyright (c) 2014 MT4 Software Studio
+ * @copyright  Copyright (c) 2014 fzipi
  * @license    http://opensource.org/licenses/MIT The MIT License
  * @author Felipe Weckx <felipe@weckx.net>
+ * @author Felipe Zipitria <fzipi@fing.edu.uy>
  */
 
-/**
- * @see Zend_Auth_Adapter_Interface
- */
-require_once 'Zend/Auth/Adapter/Interface.php';
+namespace Fing\Authentication\Adapter;
 
-/**
- * @see Zend_Auth_Result
- */
-require_once 'Zend/Auth/Result.php';
+use Zend\Authentication\Adapter\AdapterInterface;
+use Zend\Authentication\Adapter\AbstractAdapter;
+
+use Zend\Authentication;
+use Zend\Authentication\Adapter\Exception\InvalidArgumentException;
+use Zend\Authentication\Adapter\Exception\RuntimeException;
 
 /**
  * Adapter to perfom authentication on RADIUS servers. Uses the PECL radius
  * extension.
  *
- * @author Felipe Weckx <felipe@weckx.net>
+ * @author Felipe Zipitria <fzipi@fing.edu.uy>
  */
-class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
+class Radius extends AbstractAdapter implements AdapterInterface
 {
     /**
      * Maximum number of servers that can be configured
@@ -66,6 +66,13 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
     protected $_password = null;
 
     /**
+     * Realm
+     * @var string
+     */
+    protected $_realm = null;
+
+
+    /**
      * Configuration options
      * @var array
      */
@@ -77,18 +84,18 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
      * @param array  $servers  Array of arrays containing the servers to be used. {@see addServer()}
      * @param string $username The username of the account
      * @param string $password The password of the account
-     * @throws Zend_Auth_Adapter_Exception If the radius extension is not loaded or there is an error
+     * @throws Exception If the radius extension is not loaded or there is an error
      *                                     calling radius_auth_open
      */
     public function __construct($options = array(), $username = null, $password = null)
     {
         if (!extension_loaded('radius')) {
-            throw new Zend_Auth_Adapter_Exception('The radius extension is not loaded');
+            throw new RuntimeException('The radius extension is not loaded');
         }
 
         $this->_radius = radius_auth_open();
         if (!$this->_radius) {
-            throw new Zend_Auth_Adapter_Exception('Error creating RADIUS handle');
+            throw new RuntimeException('Error creating RADIUS handle');
         }
 
         $this->_loadOptions($options);
@@ -172,6 +179,28 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
         return $this->setPassword($credential);
     }
 
+    
+
+    /**
+     * Returns the Radius realm. 
+     * @return realm
+     */
+    public function getRealm()
+    {
+        return $this->_realm;
+    }
+    
+    /**
+     * Sets the radius handle. This basically overrides all configuration made on the object
+     * @var resource $radius
+     * @return Fing\Authentication\Adapter\Radius Provides fluent interface
+     */
+    public function setRealm($realm)
+    {
+        $this->_realm = $realm;
+        return $this;
+    }
+
     /**
      * Returns the radius handle. Can be used on the radius_* functions
      * @return resource
@@ -184,7 +213,7 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
     /**
      * Sets the radius handle. This basically overrides all configuration made on the object
      * @var resource $radius
-     * @return Orbini_Auth_Adapter_Radius Provides fluent interface
+     * @return Fing\Authentication\Adapter\Radius Provides fluent interface
      */
     public function setRadius($radius)
     {
@@ -214,11 +243,11 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
                                 $timeout = self::DEFAULT_TIMEOUT, $maxTries = self::DEFAULT_MAXTRIES)
     {
         if (count($this->_options['servers']) == self::MAX_SERVER_COUNT) {
-            throw new Zend_Auth_Adapter_Exception('A maximum of ' . self::MAX_SERVER_COUNT . ' can be added.');
+            throw new InvalidArgumentException('A maximum of ' . self::MAX_SERVER_COUNT . ' can be added.');
         }
 
         if (!radius_add_server($this->_radius, $hostname, $port, $secret, $timeout, $maxTries)) {
-            throw new Zend_Auth_Adapter_Exception('Error adding RADIUS server: ' . radius_strerror($this->_radius));
+            throw new InvalidArgumentException('Error adding RADIUS server: ' . radius_strerror($this->_radius));
         }
 
         $this->_options['servers'][] = array(
@@ -235,7 +264,7 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
     /**
      * Authenticate the configured user
      * 
-     * @return Zend_Auth_Result
+     * @return Zend\Authentication\Result
      */
     public function authenticate()
     {
@@ -243,7 +272,7 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
         radius_create_request($this->_radius, RADIUS_ACCESS_REQUEST);
 
         if ($this->getUsername()) {
-            radius_put_attr($this->_radius, RADIUS_USER_NAME, $this->getUsername());
+            radius_put_attr($this->_radius, RADIUS_USER_NAME, $this->getUsername() . $this->_getAuthenticationRealm() );
         }
 
         if ($this->getPassword()) {
@@ -256,17 +285,17 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
         switch($result)
         {
             case RADIUS_ACCESS_ACCEPT:
-                return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->getUsername());
+                return new Authentication\Result(Authentication\Result::SUCCESS, $this->getUsername());
             case RADIUS_ACCESS_REJECT:
-                return new Zend_Auth_Result(
-                    Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, 
+                return new Authentication\Result(
+                    Authentication\Result::FAILURE_CREDENTIAL_INVALID, 
                     $this->getUsername(), 
                     array(radius_strerror($this->_radius))
                 );
             default:
-                var_dump($result);
-                return new Zend_Auth_Result(
-                    Zend_Auth_Result::FAILURE_UNCATEGORIZED, 
+                var_dump($result); # don't do this!
+                return new Authentication\Result(
+                    Authentication\Result::FAILURE_UNCATEGORIZED, 
                     $this->getUsername(), 
                     array(radius_strerror($this->_radius))
                 );
@@ -303,7 +332,7 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
         if (isset($options['servers'])) {
             foreach ($options['servers'] as $server) {
                 if (!is_array($server) || !isset($server['hostname'])) {
-                    throw new Zend_Auth_Adapter_Exception('Invalid format on servers configuration');
+                    throw new InvalidArgumentException('Invalid format on servers configuration');
                 }
                 $port = isset($server['port']) ? $server['port'] : self::DEFAULT_PORT;
                 $secret = isset($server['secret']) ? $server['secret'] : '';
@@ -317,6 +346,11 @@ class Orbini_Auth_Adapter_Radius implements Zend_Auth_Adapter_Interface
         if (isset($options['attribs']) && is_array($options['attribs'])) {
             $this->_options['attribs'] = $options['attribs'];
         }
+    }
+
+    protected function _getAuthenticationRealm()
+    {
+        return empty($this->_realm) ? "" : "@" . $this->_realm;
     }
 }
 

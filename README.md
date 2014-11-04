@@ -1,40 +1,79 @@
-zf2-auth-radius
-===============
+# Radius authentication adapter for Zend Framework 2
 
-Zend Framework 2 adapter to authenticate on RADIUS servers
+Forked originally from MT4SoftwareStudio/orbini-auth-radius (for zf1). Added functionality for Radius realms.
 
-Installation
-------------
 
-To install use composer
+## Requirements
 
-Usage
------
+* Zend Framework 2 Authentication framework
+* PHP PECL Radius extension
 
-Simply instantiate the ZF_Auth_Adapter_Radius class specifying the desired servers and pass it to Zend_Auth:
+## Installation
+
+Add this repository to your `composer.json`:
+
+```json
+{
+    "require": {
+        "fzipi/zf2-radius-authentication-adapter": "~0.0"
+    }
+}
+```
+
+then `composer update`.
+
+## Usage
 
 ```php
-//Create our adapter passing one server (up to 10 can be passed)
-$adapter = new ZF2_Auth_Adapter_Radius(
-    array('servers' => array(
-        array(
-            'hostname' => 'localhost',
-            'port'     => 1812,
-            'secret'   => 'mysecret',
-            'timeout'  => 15,
-            'maxTries' => 1
-        )
-    )),
-    $username,
-    $password
-);
+<?php
 
-//Get Zend_Auth Singleton instance
-$auth = Zend_Auth::getInstance()
+use Fing\Authentication\Adapter\Radius as RadiusAdapter;
+use Zend\Authentication;
+
+$servers = array(
+            'servers' => array(
+                array(
+                    'hostname' => 'radius01.example.com',
+		    'port' => 1812,
+                    'secret' => '<verysecretstringforthisserver>',
+                ),
+                array(
+                    'hostname' => 'radius02.example.com',
+		    'port' => 18120, // not default port
+                    'secret' => '<anotherverysecretstring>',
+		    'timeout' => 10,
+		    'maxTries' => 2
+                )
+            )
+        );
+
+//Create our adapter passing one server (up to 10 can be passed)
+$adapter =  new RadiusAdapter($options, $username, $password);
 
 //Authenticate
-$result = $auth->authenticate($adapter);
+$result = $adapter->authenticate();
+
+//Using Radius REALMS
+$adapter->setRealm("routers");
+
+$access = $adapter->authenticate()
+
+/** Plugged in to Zend\Authentication **/
+
+// Assuming we're still using the $adapter constructed above:
+
+$authService = new Authentication\AuthenticationService(
+    new Authentication\Storage\NonPersistent(),
+    $adapter
+);
+
+$result = $authService->authenticate();
+
 ```
+## Troubleshooting
+
+Did you remember to set your secret accordingly?
+
 
 
 
