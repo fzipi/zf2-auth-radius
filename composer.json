@@ -1,0 +1,19 @@
+{
+    "name": "fzipi/zf2-radius-authentication-adapter",
+    "description": "RADIUS authentication adapter for Zend Framework 2",
+    "license": "GPL-2.0",
+    "authors": [
+	{
+	    "name": "Felipe Zipitria",
+	    "email": "fzipi@fing.edu.uy"
+	}
+    ],
+    "require": {
+	"zendframework/zend-authentication": "~2.0"
+    },
+    "autoload": {
+	"psr-0": {
+	    "Fing\\Authentication\\Adapter\\Radius": "src/"
+	}
+    }
+}
