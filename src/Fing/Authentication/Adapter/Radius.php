@@ -99,6 +99,14 @@ class Radius extends AbstractAdapter implements AdapterInterface
         }
 
         $this->_loadOptions($options);
+
+        if (isset($username)) {
+            $this->setUsername($username);
+        }
+
+        if (isset($password)) {
+            $this->setPassword($password);
+        }
     }
 
     /**
@@ -306,6 +314,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      * Loads an array of options
      * @param  array  $options The array of options in the format:
      *                         array(
+     *                             'realm' => 'somerealm',
      *                             'servers' => array(
      *                                 array(
      *                                     'hostname' => '127.0.0.1', 
@@ -325,6 +334,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     protected function _loadOptions(array $options)
     {
         $this->_options = array(
+            'realm'  => null,
             'servers' => array(),
             'attribs' => array()
         );
@@ -343,6 +353,10 @@ class Radius extends AbstractAdapter implements AdapterInterface
             }
         }
 
+        if (isset($options['realm'])) {
+            $this->setRealm($options['realm']);
+        }
+
         if (isset($options['attribs']) && is_array($options['attribs'])) {
             $this->_options['attribs'] = $options['attribs'];
         }
@@ -350,7 +364,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
 
     protected function _getAuthenticationRealm()
     {
-        return empty($this->_realm) ? "" : "@" . $this->_realm;
+        return isset($this->_realm) ? "@" . $this->_realm : "";
     }
 }
 
