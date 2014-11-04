@@ -31,18 +31,19 @@ use Fing\Authentication\Adapter\Radius as RadiusAdapter;
 use Zend\Authentication;
 
 $servers = array(
+			'realm' => "myrealm",
             'servers' => array(
                 array(
                     'hostname' => 'radius01.example.com',
-		    'port' => 1812,
+					'port' => 1812,
                     'secret' => '<verysecretstringforthisserver>',
                 ),
                 array(
                     'hostname' => 'radius02.example.com',
-		    'port' => 18120, // not default port
+					'port' => 18120, // not default port
                     'secret' => '<anotherverysecretstring>',
-		    'timeout' => 10,
-		    'maxTries' => 2
+					'timeout' => 10,
+					'maxTries' => 2
                 )
             )
         );
@@ -54,7 +55,7 @@ $adapter =  new RadiusAdapter($options, $username, $password);
 $result = $adapter->authenticate();
 
 //Using Radius REALMS
-$adapter->setRealm("routers");
+$adapter->setRealm("routers"); // if not set in options config previously
 
 $access = $adapter->authenticate()
 
@@ -73,7 +74,3 @@ $result = $authService->authenticate();
 ## Troubleshooting
 
 Did you remember to set your secret accordingly?
-
-
-
-
