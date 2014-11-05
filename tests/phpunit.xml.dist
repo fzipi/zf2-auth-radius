@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<phpunit bootstrap="./bootstrap.php" colors="true">
-    <groups>
-        <exclude>
-            <group>disable</group>
-        </exclude>
-    </groups>
-</phpunit>

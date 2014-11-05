@@ -1,9 +1,9 @@
 <?php
 /**
- * ZF2 Auth Adapter Radius
+ * ZF2 Authentication Adapter Radius
  *
- * @category   Auth
- * @package    Orbini
+ * @category   Authentication
+ * @package    Fing
  * @copyright  Copyright (c) 2014 fzipi
  * @license    http://opensource.org/licenses/MIT The MIT License
  * @author Felipe Weckx <felipe@weckx.net>
@@ -20,7 +20,7 @@ use Zend\Authentication\Adapter\Exception\InvalidArgumentException;
 use Zend\Authentication\Adapter\Exception\RuntimeException;
 
 /**
- * Adapter to perfom authentication on RADIUS servers. Uses the PECL radius
+ * Adapter to perform authentication on RADIUS servers. Uses the PECL radius
  * extension.
  *
  * @author Felipe Zipitria <fzipi@fing.edu.uy>
@@ -268,6 +268,29 @@ class Radius extends AbstractAdapter implements AdapterInterface
         );
 
         return $this;
+    }
+
+     /**
+     * Adds a RADIUS server to try to authenticate. Up to 10 servers can be specified.
+     * @param  string                      $hostname The hostname or IP address of the server.
+     * @param  int                         $port     The port on which authentication is listening. Usually 1812.
+     * @param  string                      $secret   The shared secret for the server host.
+     * @param  integer                     $timeout  Timeout in seconds to wait for a server reply
+     * @param  integer                     $maxTries Maximum number of repeated requests before giving up
+     * @throws Zend_Auth_Adapter_Exception If the server cannot be added
+     */
+    public function getRadiusAttributes()
+    {
+        while ($resa = radius_get_attr($this->_radius)) {
+            if (!is_array($resa)) {
+                printf ("Error getting attribute: %s\n",  radius_strerror($res));
+                exit;
+            }
+
+            $attr = $resa['attr'];
+            $data = $resa['data'];
+            printf("Got Attr:%d %d Bytes %s\n", $attr, strlen($data), bin2hex($data));
+        }
     }
 
     /**

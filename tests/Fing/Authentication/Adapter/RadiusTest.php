@@ -2,7 +2,7 @@
 
 namespace FingTest\Authentication\Adapter;
 
-use Fing\Authentication\Adapter;
+use Fing\Authentication\Adapter\Radius;
 
 class RadiusTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,7 +23,7 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $this->radius = new Adapter\Radius($options);
+        $this->radius = new Radius($options);
     }
 
     /**
@@ -36,7 +36,7 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $will_throw_exception = new Adapter\Radius($bad_options);
+        $will_throw_exception = new Radius($bad_options);
     }
 
     public function testValidateResponseWithBadUser()
@@ -60,4 +60,16 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result->isValid());
     }
 
+    public function testGetRadiusResponseAttributes()
+    {
+        $this->radius->setUsername("9555555");
+        $this->radius->setRealm("fing");
+        $this->radius->setPassword("eNsf1Ng");
+
+        $result = $this->radius->authenticate();
+
+        $attributes = $this->radius->getRadiusAttributes();
+
+        $this->assertTrue($result->isValid());
+    }
 }
