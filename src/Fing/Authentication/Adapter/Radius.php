@@ -160,7 +160,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     /**
      * Sets the password to authenticate
      * @var string $password
-     * @return Orbini_Auth_Adapter_Radius Provides fluent interface
+     * @return self
      */
     public function setPassword($password)
     {
@@ -200,7 +200,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     /**
      * Sets the radius handle. This basically overrides all configuration made on the object
      * @var resource $radius
-     * @return Fing\Authentication\Adapter\Radius Provides fluent interface
+     * @return self
      */
     public function setRealm($realm)
     {
@@ -221,7 +221,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     /**
      * Sets the radius handle. This basically overrides all configuration made on the object
      * @var resource $radius
-     * @return Fing\Authentication\Adapter\Radius Provides fluent interface
+     * @return self
      */
     public function setRadius($radius)
     {
@@ -271,26 +271,26 @@ class Radius extends AbstractAdapter implements AdapterInterface
     }
 
      /**
-     * Adds a RADIUS server to try to authenticate. Up to 10 servers can be specified.
-     * @param  string                      $hostname The hostname or IP address of the server.
-     * @param  int                         $port     The port on which authentication is listening. Usually 1812.
-     * @param  string                      $secret   The shared secret for the server host.
-     * @param  integer                     $timeout  Timeout in seconds to wait for a server reply
+     * Gets RADIUS Attributes from response
      * @param  integer                     $maxTries Maximum number of repeated requests before giving up
-     * @throws Zend_Auth_Adapter_Exception If the server cannot be added
+     * @return array                       associative array of attribute name and its value
+     * @throws InvalidArgumentException    if attributes cannot be readed
      */
-    public function getRadiusAttributes()
+    public function getRadiusResponseAttributes()
     {
+        $response = array();
+        $attributes = new Radius\Attributes();
+        
         while ($resa = radius_get_attr($this->_radius)) {
             if (!is_array($resa)) {
-                printf ("Error getting attribute: %s\n",  radius_strerror($res));
-                exit;
+                throw new InvalidArgumentException('Error getting RADIUS attributes: ' . radius_strerror($this->_radius));
             }
 
-            $attr = $resa['attr'];
-            $data = $resa['data'];
-            printf("Got Attr:%d %d Bytes %s\n", $attr, strlen($data), bin2hex($data));
+            $key = $resa['attr'];
+            $value = $resa['data'];
+            $response[$attributes->attributeToString($key)] = $value;
         }
+        return $response;
     }
 
     /**

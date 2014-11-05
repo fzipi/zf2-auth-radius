@@ -3,6 +3,7 @@
 namespace FingTest\Authentication\Adapter;
 
 use Fing\Authentication\Adapter\Radius;
+use Fing\Authentication\Adapter\Radius\Attributes;
 
 class RadiusTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,6 +58,12 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->radius->authenticate();
 
+        // Stop here and mark this test as incomplete. you have to provide your
+        // own user and password for it to work!
+        $this->markTestIncomplete(
+          'You have to change user and password for this test to work!'
+        );
+
         $this->assertTrue($result->isValid());
     }
 
@@ -68,7 +75,11 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->radius->authenticate();
 
-        $attributes = $this->radius->getRadiusAttributes();
+        $response = $this->radius->getRadiusResponseAttributes();
+
+        $attrib = new Attributes();
+
+        $this->assertEquals($response["Reply-Message"], "My Reply Message");
 
         $this->assertTrue($result->isValid());
     }
