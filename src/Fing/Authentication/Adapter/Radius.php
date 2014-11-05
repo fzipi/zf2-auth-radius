@@ -71,7 +71,6 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     protected $_realm = null;
 
-
     /**
      * Configuration options
      * @var array
@@ -80,12 +79,12 @@ class Radius extends AbstractAdapter implements AdapterInterface
 
     /**
      * Constructor
-     * 
-     * @param array  $servers  Array of arrays containing the servers to be used. {@see addServer()}
-     * @param string $username The username of the account
-     * @param string $password The password of the account
+     *
+     * @param  array     $servers  Array of arrays containing the servers to be used. {@see addServer()}
+     * @param  string    $username The username of the account
+     * @param  string    $password The password of the account
      * @throws Exception If the radius extension is not loaded or there is an error
-     *                                     calling radius_auth_open
+     *                            calling radius_auth_open
      */
     public function __construct($options = array(), $username = null, $password = null)
     {
@@ -117,7 +116,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     {
         return $this->_username;
     }
-    
+
     /**
      * Sets the username to authenticate
      * @var string $username
@@ -126,6 +125,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     public function setUsername($username)
     {
         $this->_username = $username;
+
         return $this;
     }
 
@@ -137,7 +137,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     {
         return $this->getUsername();
     }
-    
+
     /**
      * Sets the identity. For compatibility with other adapters. Proxies to {@see setUsername()}
      * @var string $identity
@@ -156,7 +156,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     {
         return $this->_password;
     }
-    
+
     /**
      * Sets the password to authenticate
      * @var string $password
@@ -165,6 +165,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     public function setPassword($password)
     {
         $this->_password = $password;
+
         return $this;
     }
 
@@ -176,7 +177,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     {
         return $this->getPassword();
     }
-    
+
     /**
      * Sets the credential. For compatibility with other adapters. Proxies to {@see setPassword()}
      * @var string $credential
@@ -187,17 +188,15 @@ class Radius extends AbstractAdapter implements AdapterInterface
         return $this->setPassword($credential);
     }
 
-    
-
     /**
-     * Returns the Radius realm. 
+     * Returns the Radius realm.
      * @return realm
      */
     public function getRealm()
     {
         return $this->_realm;
     }
-    
+
     /**
      * Sets the radius handle. This basically overrides all configuration made on the object
      * @var resource $radius
@@ -206,6 +205,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     public function setRealm($realm)
     {
         $this->_realm = $realm;
+
         return $this;
     }
 
@@ -217,7 +217,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
     {
         return $this->_radius;
     }
-    
+
     /**
      * Sets the radius handle. This basically overrides all configuration made on the object
      * @var resource $radius
@@ -226,12 +226,13 @@ class Radius extends AbstractAdapter implements AdapterInterface
     public function setRadius($radius)
     {
         $this->_radius = $radius;
+
         return $this;
     }
 
     /**
      * Return current options
-     * @return array 
+     * @return array
      */
     public function getOptions()
     {
@@ -240,14 +241,14 @@ class Radius extends AbstractAdapter implements AdapterInterface
 
     /**
      * Adds a RADIUS server to try to authenticate. Up to 10 servers can be specified.
-     * @param string  $hostname The hostname or IP address of the server.
-     * @param int     $port     The port on which authentication is listening. Usually 1812.
-     * @param string  $secret   The shared secret for the server host.
-     * @param integer $timeout  Timeout in seconds to wait for a server reply
-     * @param integer $maxTries Maximum number of repeated requests before giving up
+     * @param  string                      $hostname The hostname or IP address of the server.
+     * @param  int                         $port     The port on which authentication is listening. Usually 1812.
+     * @param  string                      $secret   The shared secret for the server host.
+     * @param  integer                     $timeout  Timeout in seconds to wait for a server reply
+     * @param  integer                     $maxTries Maximum number of repeated requests before giving up
      * @throws Zend_Auth_Adapter_Exception If the server cannot be added
      */
-    public function addServer($hostname, $port = self::DEFAULT_PORT, $secret = null, 
+    public function addServer($hostname, $port = self::DEFAULT_PORT, $secret = null,
                                 $timeout = self::DEFAULT_TIMEOUT, $maxTries = self::DEFAULT_MAXTRIES)
     {
         if (count($this->_options['servers']) == self::MAX_SERVER_COUNT) {
@@ -271,7 +272,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
 
     /**
      * Authenticate the configured user
-     * 
+     *
      * @return Zend\Authentication\Result
      */
     public function authenticate()
@@ -290,21 +291,21 @@ class Radius extends AbstractAdapter implements AdapterInterface
         //Send
         $result = radius_send_request($this->_radius);
 
-        switch($result)
-        {
+        switch ($result) {
             case RADIUS_ACCESS_ACCEPT:
                 return new Authentication\Result(Authentication\Result::SUCCESS, $this->getUsername());
             case RADIUS_ACCESS_REJECT:
                 return new Authentication\Result(
-                    Authentication\Result::FAILURE_CREDENTIAL_INVALID, 
-                    $this->getUsername(), 
+                    Authentication\Result::FAILURE_CREDENTIAL_INVALID,
+                    $this->getUsername(),
                     array(radius_strerror($this->_radius))
                 );
             default:
                 var_dump($result); # don't do this!
+
                 return new Authentication\Result(
-                    Authentication\Result::FAILURE_UNCATEGORIZED, 
-                    $this->getUsername(), 
+                    Authentication\Result::FAILURE_UNCATEGORIZED,
+                    $this->getUsername(),
                     array(radius_strerror($this->_radius))
                 );
         }
@@ -312,23 +313,23 @@ class Radius extends AbstractAdapter implements AdapterInterface
 
     /**
      * Loads an array of options
-     * @param  array  $options The array of options in the format:
-     *                         array(
-     *                             'realm' => 'somerealm',
-     *                             'servers' => array(
-     *                                 array(
-     *                                     'hostname' => '127.0.0.1', 
-     *                                     'port' => 1812, 
-     *                                     'secret' => 'mysecret',
-     *                                     'timeout' => 10,
-     *                                     'maxTries' => 2
-     *                                 )
-     *                             ),
-     *                             'attribs' => array(
-     *                                 RADIUS_CHAP_PASSWORD => pack('C', $ident),
-     *                                 RADIUS_CHAP_CHALLENGE => 'challenge'
-     *                             )
-     *                         )
+     * @param  array $options The array of options in the format:
+     *                        array(
+     *                        'realm' => 'somerealm',
+     *                        'servers' => array(
+     *                        array(
+     *                        'hostname' => '127.0.0.1',
+     *                        'port' => 1812,
+     *                        'secret' => 'mysecret',
+     *                        'timeout' => 10,
+     *                        'maxTries' => 2
+     *                        )
+     *                        ),
+     *                        'attribs' => array(
+     *                        RADIUS_CHAP_PASSWORD => pack('C', $ident),
+     *                        RADIUS_CHAP_CHALLENGE => 'challenge'
+     *                        )
+     *                        )
      * @return void
      */
     protected function _loadOptions(array $options)
@@ -367,4 +368,3 @@ class Radius extends AbstractAdapter implements AdapterInterface
         return isset($this->_realm) ? "@" . $this->_realm : "";
     }
 }
-
