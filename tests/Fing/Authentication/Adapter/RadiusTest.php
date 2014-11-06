@@ -14,12 +14,12 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
         $options = array(
             'servers' => array(
                 array(
-                    'hostname' => 'radius01.fing.edu.uy',
-                    'secret' => 'picard',
+                    'hostname' => 'radius01.example.com',
+                    'secret' => 'mysecret',
                 ),
                 array(
-                    'hostname' => 'radius02.fing.edu.uy',
-                    'secret' => 'picard',
+                    'hostname' => 'radius02.example.com',
+                    'secret' => 'myothersecret',
                 )
             )
         );
