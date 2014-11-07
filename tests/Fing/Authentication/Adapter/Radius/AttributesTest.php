@@ -24,5 +24,4 @@ class AttributesTest extends \PHPUnit_Framework_TestCase
         $not_found = $this->attributes->attributeToString(1000);
         $this->assertFalse($not_found);
     }
-
 }

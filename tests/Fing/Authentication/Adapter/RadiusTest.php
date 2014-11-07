@@ -60,9 +60,7 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
 
         // Stop here and mark this test as incomplete. you have to provide your
         // own user and password for it to work!
-        $this->markTestIncomplete(
-          'You have to change user and password for this test to work!'
-        );
+        $this->markTestIncomplete('You have to change user and password for this test to work!');
 
         $this->assertTrue($result->isValid());
     }
