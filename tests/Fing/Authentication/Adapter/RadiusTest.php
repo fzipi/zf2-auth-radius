@@ -4,6 +4,9 @@ namespace FingTest\Authentication\Adapter;
 
 use Fing\Authentication\Adapter\Radius;
 
+/**
+* @requires extension radius
+*/
 class RadiusTest extends \PHPUnit_Framework_TestCase
 {
     protected $radius;
@@ -30,7 +33,7 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * requires extension radius
+     * @requires extension radius
      * @expectedException Zend\Authentication\Adapter\Exception\InvalidArgumentException
      */
     public function testInvalidArgument()
