@@ -9,6 +9,6 @@ before_script:
   - composer install
   - pecl install radius
 script:
-  - ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit -c tests/phpunit.xml.dist
   - ./vendor/bin/phpcs --standard=PSR2 src
   - ./vendor/bin/phpcs --standard=PSR2 tests

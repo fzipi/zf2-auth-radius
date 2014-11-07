@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<phpunit bootstrap="./vendor/autoload.php">
+<phpunit bootstrap="./Bootstrap.php" colors="true">
   <testsuites>
     <testsuite name="The project's test suite">
-      <directory>./tests</directory>
+      <directory>./FingTest</directory>
     </testsuite>
   </testsuites>
 </phpunit>
