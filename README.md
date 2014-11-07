@@ -1,5 +1,7 @@
 # Radius authentication adapter for Zend Framework 2
 
+[![Build Status](https://travis-ci.org/fzipi/zf2-radius-authentication-adapter.svg)](https://travis-ci.org/fzipi/zf2-radius-authentication-adapter)
+
 Forked originally from MT4SoftwareStudio/orbini-auth-radius (for zf1). Added functionality for Radius realms.
 
 
