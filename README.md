@@ -75,4 +75,4 @@ $result = $authService->authenticate();
 ```
 ## Troubleshooting
 
-Did you remember to set your secret accordingly?
+Did you remember to set your RADIUS secret accordingly?
