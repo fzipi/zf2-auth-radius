@@ -8,6 +8,9 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
 {
     protected $radius;
 
+    /**
+     * @requires extension radius
+     */
     public function setUp()
     {
         $options = array(
@@ -27,7 +30,8 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * //expectedException Zend\Authentication\Adapter\Exception\InvalidArgumentException
+     * requires extension radius
+     * @expectedException Zend\Authentication\Adapter\Exception\InvalidArgumentException
      */
     public function testInvalidArgument()
     {
@@ -39,6 +43,9 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
         $will_throw_exception = new Radius($bad_options);
     }
 
+    /**
+     * @requires extension radius
+     */
     public function testValidateResponseWithBadUser()
     {
         $this->radius->setUsername("test");
@@ -49,6 +56,9 @@ class RadiusTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result->isValid());
     }
 
+    /**
+     * @requires extension radius
+     */
     public function testValidateResponseWithValidUser()
     {
         $this->radius->setUsername("good");
