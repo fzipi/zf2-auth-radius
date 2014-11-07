@@ -274,30 +274,6 @@ class Radius extends AbstractAdapter implements AdapterInterface
         return $this;
     }
 
-     /**
-     * Gets RADIUS Attributes from response
-     * @param  integer                     $maxTries Maximum number of repeated requests before giving up
-     * @return array                       associative array of attribute name and its value
-     * @throws InvalidArgumentException    if attributes cannot be readed
-     */
-    public function getRadiusResponseAttributes()
-    {
-        $response = array();
-        $attributes = new Radius\Attributes();
-        
-        while ($resa = radius_get_attr($this->radius)) {
-            if (!is_array($resa)) {
-                throw
-                  new InvalidArgumentException('Error getting RADIUS attributes: ' . radius_strerror($this->radius));
-            }
-
-            $key = $resa['attr'];
-            $value = $resa['data'];
-            $response[$attributes->attributeToString($key)] = $value;
-        }
-        return $response;
-    }
-
     /**
      * Authenticate the configured user
      *
