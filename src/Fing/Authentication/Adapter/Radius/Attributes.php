@@ -19,7 +19,7 @@ namespace Fing\Authentication\Adapter\Radius;
  */
 class Attributes
 {
-    private $_attributes = array(
+    private $attributes = array(
         "User-Name" => 1,
         "User-Password" => 2,
         "CHAP-Password" => 3,
@@ -215,7 +215,6 @@ class Attributes
      */
     public function attributeToString($attr_id)
     {
-        return array_search($attr_id,$this->_attributes); 
+        return array_search($attr_id, $this->attributes);
     }
 }
-

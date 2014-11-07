@@ -51,31 +51,31 @@ class Radius extends AbstractAdapter implements AdapterInterface
      * Radius handle
      * @var resource
      */
-    protected $_radius = null;
+    protected $radius = null;
 
     /**
      * Username
      * @var string
      */
-    protected $_username = null;
+    protected $username = null;
 
     /**
      * Password
      * @var string
      */
-    protected $_password = null;
+    protected $password = null;
 
     /**
      * Realm
      * @var string
      */
-    protected $_realm = null;
+    protected $realm = null;
 
     /**
      * Configuration options
      * @var array
      */
-    protected $_options = array();
+    protected $options = array();
 
     /**
      * Constructor
@@ -92,12 +92,12 @@ class Radius extends AbstractAdapter implements AdapterInterface
             throw new RuntimeException('The radius extension is not loaded');
         }
 
-        $this->_radius = radius_auth_open();
-        if (!$this->_radius) {
+        $this->radius = radius_auth_open();
+        if (!$this->radius) {
             throw new RuntimeException('Error creating RADIUS handle');
         }
 
-        $this->_loadOptions($options);
+        $this->loadOptions($options);
 
         if (isset($username)) {
             $this->setUsername($username);
@@ -114,7 +114,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function getUsername()
     {
-        return $this->_username;
+        return $this->username;
     }
 
     /**
@@ -124,7 +124,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function setUsername($username)
     {
-        $this->_username = $username;
+        $this->username = $username;
 
         return $this;
     }
@@ -154,7 +154,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function getPassword()
     {
-        return $this->_password;
+        return $this->password;
     }
 
     /**
@@ -164,7 +164,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function setPassword($password)
     {
-        $this->_password = $password;
+        $this->password = $password;
 
         return $this;
     }
@@ -194,7 +194,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function getRealm()
     {
-        return $this->_realm;
+        return $this->realm;
     }
 
     /**
@@ -204,7 +204,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function setRealm($realm)
     {
-        $this->_realm = $realm;
+        $this->realm = $realm;
 
         return $this;
     }
@@ -215,7 +215,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function getRadius()
     {
-        return $this->_radius;
+        return $this->radius;
     }
 
     /**
@@ -225,7 +225,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function setRadius($radius)
     {
-        $this->_radius = $radius;
+        $this->radius = $radius;
 
         return $this;
     }
@@ -236,7 +236,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
      */
     public function getOptions()
     {
-        return $this->_options;
+        return $this->options;
     }
 
     /**
@@ -248,18 +248,22 @@ class Radius extends AbstractAdapter implements AdapterInterface
      * @param  integer                     $maxTries Maximum number of repeated requests before giving up
      * @throws Zend_Auth_Adapter_Exception If the server cannot be added
      */
-    public function addServer($hostname, $port = self::DEFAULT_PORT, $secret = null,
-                                $timeout = self::DEFAULT_TIMEOUT, $maxTries = self::DEFAULT_MAXTRIES)
-    {
-        if (count($this->_options['servers']) == self::MAX_SERVER_COUNT) {
+    public function addServer(
+        $hostname,
+        $port = self::DEFAULT_PORT,
+        $secret = null,
+        $timeout = self::DEFAULT_TIMEOUT,
+        $maxTries = self::DEFAULT_MAXTRIES
+    ) {
+        if (count($this->options['servers']) == self::MAX_SERVER_COUNT) {
             throw new InvalidArgumentException('A maximum of ' . self::MAX_SERVER_COUNT . ' can be added.');
         }
 
-        if (!radius_add_server($this->_radius, $hostname, $port, $secret, $timeout, $maxTries)) {
-            throw new InvalidArgumentException('Error adding RADIUS server: ' . radius_strerror($this->_radius));
+        if (!radius_add_server($this->radius, $hostname, $port, $secret, $timeout, $maxTries)) {
+            throw new InvalidArgumentException('Error adding RADIUS server: ' . radius_strerror($this->radius));
         }
 
-        $this->_options['servers'][] = array(
+        $this->options['servers'][] = array(
             'hostname' => $hostname,
             'port'     => $port,
             'secret'   => $secret,
@@ -281,9 +285,10 @@ class Radius extends AbstractAdapter implements AdapterInterface
         $response = array();
         $attributes = new Radius\Attributes();
         
-        while ($resa = radius_get_attr($this->_radius)) {
+        while ($resa = radius_get_attr($this->radius)) {
             if (!is_array($resa)) {
-                throw new InvalidArgumentException('Error getting RADIUS attributes: ' . radius_strerror($this->_radius));
+                throw
+                  new InvalidArgumentException('Error getting RADIUS attributes: ' . radius_strerror($this->radius));
             }
 
             $key = $resa['attr'];
@@ -301,18 +306,18 @@ class Radius extends AbstractAdapter implements AdapterInterface
     public function authenticate()
     {
         //Create RADIUS request
-        radius_create_request($this->_radius, RADIUS_ACCESS_REQUEST);
+        radius_create_request($this->radius, RADIUS_ACCESS_REQUEST);
 
         if ($this->getUsername()) {
-            radius_put_attr($this->_radius, RADIUS_USER_NAME, $this->getUsername() . $this->_getAuthenticationRealm() );
+            radius_put_attr($this->radius, RADIUS_USER_NAME, $this->getUsername() . $this->getAuthenticationRealm());
         }
 
         if ($this->getPassword()) {
-            radius_put_attr($this->_radius, RADIUS_USER_PASSWORD, $this->getPassword());
+            radius_put_attr($this->radius, RADIUS_USER_PASSWORD, $this->getPassword());
         }
 
         //Send
-        $result = radius_send_request($this->_radius);
+        $result = radius_send_request($this->radius);
 
         switch ($result) {
             case RADIUS_ACCESS_ACCEPT:
@@ -321,7 +326,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
                 return new Authentication\Result(
                     Authentication\Result::FAILURE_CREDENTIAL_INVALID,
                     $this->getUsername(),
-                    array(radius_strerror($this->_radius))
+                    array(radius_strerror($this->radius))
                 );
             default:
                 var_dump($result); # don't do this!
@@ -329,7 +334,7 @@ class Radius extends AbstractAdapter implements AdapterInterface
                 return new Authentication\Result(
                     Authentication\Result::FAILURE_UNCATEGORIZED,
                     $this->getUsername(),
-                    array(radius_strerror($this->_radius))
+                    array(radius_strerror($this->radius))
                 );
         }
     }
@@ -355,9 +360,9 @@ class Radius extends AbstractAdapter implements AdapterInterface
      *                        )
      * @return void
      */
-    protected function _loadOptions(array $options)
+    protected function loadOptions(array $options)
     {
-        $this->_options = array(
+        $this->options = array(
             'realm'  => null,
             'servers' => array(),
             'attribs' => array()
@@ -382,12 +387,12 @@ class Radius extends AbstractAdapter implements AdapterInterface
         }
 
         if (isset($options['attribs']) && is_array($options['attribs'])) {
-            $this->_options['attribs'] = $options['attribs'];
+            $this->options['attribs'] = $options['attribs'];
         }
     }
 
-    protected function _getAuthenticationRealm()
+    protected function getAuthenticationRealm()
     {
-        return isset($this->_realm) ? "@" . $this->_realm : "";
+        return isset($this->realm) ? "@" . $this->realm : "";
     }
 }
